@@ -12,8 +12,8 @@ that the angle of the turret is close any future angles calculated by the algori
 later on.
 
 # Adjustable Parameters
-Target and Projectile Speed
-Target Acceleration
+\nTarget and Projectile Speed
+\nTarget Acceleration
 Target and Turret Position
 Number of turrets
 
