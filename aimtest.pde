@@ -12,7 +12,7 @@ float turX = 500;
 float turY = 500;
 float projSpeed = 124; // meters / s
 float targSpeed = 15;
-float angleSpeed = -1; //degrees / sec
+float angleSpeed = 60; //degrees / sec
 float initialDist = 10; //starting distance from tur
 
 Turret tur;
@@ -49,7 +49,7 @@ void draw() {
   //tur.setTarget(mouseTarg);
   tur.setTarget(target.pos);
   tur.aimAt();
-  if (frameCount % 2 == 0) {
+  if (frameCount % 4 == 0) {
     //println(degreesToRaw(degrees(tur.angle) + 180));
     myPort.write(Integer.toString(4096 - degreesToRaw(degrees(tur.angle) + 180)) + "\n");
   }
