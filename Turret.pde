@@ -112,8 +112,12 @@ class Turret {
     if (frameCount > FRAMERATE) pred.calcVals(projVel);
     //pred.viewVals();
     if (smartAim) {
-      if (pred.shouldFire) {rotateTo(pred.newPos.heading());}
-      else {rotateTo(targetPos.heading() + calcLeadAngle());}
+      if (pred.shouldFire) {
+        rotateTo(pred.newPos.heading());
+      }
+      else {
+        rotateTo(targetPos.heading() + calcLeadAngle());
+      }
     } else {
       rotateTo(targetPos.heading() + calcLeadAngle());
     }
