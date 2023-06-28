@@ -35,7 +35,7 @@ void setup() {
   projs = new ArrayList<Projectile>();
   target = new Projectile(new PVector(turX / SCALE, turY / SCALE + initialDist), targSpeed, 0, 5 / SCALE, color(0, 125, 255, 200), targSpeed);
   // Open the port you are using at the rate you want:
-  myPort = new Serial(this, Serial.list()[1], 115200);
+  myPort = new Serial(this, Serial.list()[0], 115200);
 }
 
 void draw() {
@@ -51,7 +51,7 @@ void draw() {
   tur.aimAt();
   if (frameCount % 2 == 0) {
     //println(degreesToRaw(degrees(tur.angle) + 180));
-    myPort.write(Integer.toString(4096 - degreesToRaw(degrees(tur.angle) + 180)) + "\n");
+    myPort.write("y" + Integer.toString(4096 - degreesToRaw(degrees(tur.angle) + 180)) + "\n");
   }
   if (myPort.available() > 0) {
     println(myPort.readString());

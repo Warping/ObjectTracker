@@ -32,6 +32,9 @@ void lerpToPos(int id, int newPosRaw);
 void process_data (const char * data);
 void processIncomingByte (const byte inByte);
 
+int servoPos[] = {0, 0};
+int targetPos[] = {0, 0};
+
 void setup() {
   // put your setup code here, to run once:
   
@@ -49,19 +52,24 @@ void setup() {
     dxl.setOperatingMode(i, OP_POSITION);
     dxl.torqueOn(i);
   }
-  delay(300);
+  delay(1000);
+  // for (int id = 1; id <= 2; id++) {
+  //   while (abs(dxl.getPresentPosition(id)) > 5) {
+  //     lerpToPos(id, 0);
+  //     delay(1);
+  //   }
+  // }
   setPosRaw(1, 0);
   setPosRaw(2, 0);
-  delay(300);
+  delay(1000);
 }
-int servoPos[] = {0, 0};
-int targetPos[] = {0, 0};
 
 void loop() {
   while (Serial.available () > 0)
     processIncomingByte (Serial.read ());
   //if (oldTargetPos != targetPos[0])
   lerpToPos(1, targetPos[0]);
+  lerpToPos(2, targetPos[1]);
   // if (DEBUG_SERIAL.available()) {
   //   targetPos[0] = DEBUG_SERIAL.parseInt();
   //   DEBUG_SERIAL.print("Target Position of ID 1: ");
@@ -75,7 +83,7 @@ void printPos(int id) {
   DEBUG_SERIAL.print("Present Position of ID ");
   DEBUG_SERIAL.print(id);
   DEBUG_SERIAL.print(": ");
-  DEBUG_SERIAL.println(getPosDegrees(id));
+  DEBUG_SERIAL.println(dxl.getPresentPosition(id));
 }
 
 int degreesToRaw(float degrees) {
@@ -115,8 +123,15 @@ void process_data (const char * data)
   {
   // for now just display it
   // (but you could compare it to some value, convert to an integer, etc.)
-    targetPos[0] = atoi(data);
-    DEBUG_SERIAL.println(data);
+  char * newData = (char *)data;
+  if (newData[0] == 'y') {
+    newData[0] = '0';
+    targetPos[0] = atoi(newData);
+  } else if (newData[0] == 'p') {
+    newData[0] = '0';
+    targetPos[1] = atoi(data);
+  }
+    //DEBUG_SERIAL.println(data);
   }  // end of process_data
 
 void processIncomingByte (const byte inByte)
