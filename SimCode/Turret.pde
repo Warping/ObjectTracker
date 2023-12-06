@@ -111,16 +111,16 @@ class Turret {
     projVel.setMag(projSpeed);
     if (frameCount > FRAMERATE) pred.calcVals(projVel);
     //pred.viewVals();
-    if (smartAim) {
+    //if (smartAim) {
       if (pred.shouldFire) {
         rotateTo(pred.newPos.heading());
       }
       else {
         rotateTo(targetPos.heading() + calcLeadAngle());
       }
-    } else {
-      rotateTo(targetPos.heading() + calcLeadAngle());
-    }
+    //} else {
+    //  rotateTo(targetPos.heading() + calcLeadAngle());
+    //}
     //Vel calc angle
     //PVector _targetPos = targetPos.copy();
     //_targetPos.sub(turPos);
