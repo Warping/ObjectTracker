@@ -10,6 +10,7 @@ class PathPred {
   boolean shouldFire = false;
   ArrayList<Float> frameRates;
   PVector newPos;
+  PVector prevPos;
   
   PolySolve solver = new PolySolve();
   
@@ -56,11 +57,13 @@ class PathPred {
       float a = 0.25 * curAcc.magSq();
       double[] tVals = solver.solveQuartic(a, b, c, d, e);
       if (tVals != null && tVals.length > 2) {
-        shouldFire = true;
         t = (float) tVals[2];
-        //println(tVals);
-        newPos = curPos.copy().add(curVel.copy().mult(t));
-        newPos.add(curAcc.mult(0.5 * t*t));
+        if (t < 2) {
+          shouldFire = true;
+          //println(tVals);
+          newPos = curPos.copy().add(curVel.copy().mult(t));
+          newPos.add(curAcc.mult(0.5 * t*t));
+        }
       }
       //println(solver.solveQuartic(1, -7, 5, 31, -30));
     } else {
