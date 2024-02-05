@@ -1,0 +1,5 @@
+All development is to be done on python 3.6.9 and nothing else. You need to install torch first, globally, with the file located in local_wheels, THEN somewhere else on your computer, install torchvision 0.9.1 with "git clone -b v0.9.1 https://github.com/pytorch/vision && cd vision && sudo python3.6 setup.py install". This is a massive pain and is in dire need of change.
+
+yolov5 needs to also be installed and working with python 3.6.9. Probably also doesn't work well just like most things on the nano!
+
+Download the correct version of torch off the nvidia website using the shell file or from https://nvidia.box.com/shared/static/p57jwntv436lfrd78inwl7iml6p13fzh.whl and rename it to torch-1.8.0-cp36-cp36m-linux_aarch64.whl.
