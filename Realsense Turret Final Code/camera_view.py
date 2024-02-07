@@ -22,10 +22,10 @@ from realsense_depth import *
 # Create a class that contains the functions
 
 class PersonDetector:
-    def __init__(self, cap):
+    def __init__(self, cap, device='cuda'):
         global model
         model = YOLO('yolov8x-pose.pt')
-        model.to('cuda')
+        model.to(device)
         self.cap = cap
         self.depthToColorRes = (cap.depthRes[0] / cap.colorRes[0], cap.depthRes[1] / cap.colorRes[1])
     

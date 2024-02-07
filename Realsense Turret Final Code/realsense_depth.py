@@ -4,7 +4,7 @@ import numpy as np
 exposure = 31000
 
 class DepthCamera:
-    def __init__(self, colorRes, depthRes):
+    def __init__(self, colorRes, depthRes, colorFPS, depthFPS):
         # Configure depth and color streams
         self.colorRes = colorRes
         self.depthRes = depthRes
@@ -27,9 +27,9 @@ class DepthCamera:
         # Configure depth and color streams
 
         # config.enable_stream(rs.stream.depth, 848, 480, rs.format.z16, 30)
-        config.enable_stream(rs.stream.depth, depthX, depthY, rs.format.z16, 15)
+        config.enable_stream(rs.stream.depth, depthX, depthY, rs.format.z16, depthFPS)
         # config.enable_stream(rs.stream.color, 848, 480, rs.format.bgr8, 30)
-        config.enable_stream(rs.stream.color, colorX, colorY, rs.format.bgr8, 30)
+        config.enable_stream(rs.stream.color, colorX, colorY, rs.format.bgr8, colorFPS)
         # config.enable_stream(rs.stream.infrared, 848, 480, rs.format.y8, 30)
 
         # Align depth to color
