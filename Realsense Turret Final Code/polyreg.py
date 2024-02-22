@@ -24,7 +24,7 @@ class Point:
             for p in position:
                 self.coordinates['a'+str(n)] = p
                 n += 1
-        elif type(position) == dict():
+        elif type(position) == dict:
             for label,value in position.items():
                 self.coordinates[label] = value
 
@@ -59,7 +59,7 @@ class Points:
 
 
     
-    def all_line(label:str) -> list:
+    def all_line(self, label:str) -> list:
         """
         Gets all the points in the line label.
         ex. all_line('x') gives a list of all the points on the x line
@@ -69,19 +69,23 @@ class Points:
             return False
         line = []
         for p in self.p_set:
-            line.append(p.coordinates[p])
+            line.append(p.coordinates[label])
         return line
 
 
     def add_point(self, pt):
         self.p_set.append(pt)
-        self.len = len(p_set)
+        self.len = len(self.p_set)
         for label in pt.coordinates.keys():
             if label not in self.labels:
                 self.labels.append(label)
 
-    def pop(self):
-        pop_point = self.p_set.pop()
+    def pop(self, i=None):
+        if i == None:
+            pop_point = self.p_set.pop()
+        else:
+            pop_point = self.p_set.pop(i)
+        self.len = len(self.p_set)
         return pop_point
     
     def rm_point(self, pt):
@@ -91,9 +95,10 @@ class Points:
             pt1 = pt
 
 
-        for p,i in enumerate(self.p_set, range(self.len)):
+        for idx,p in enumerate(self.p_set):
             if p == pt1:
-                del self.p_set[i]
+                del self.p_set[idx]
+                self.len = len(self.p_set)
                 return True
         
         return False
