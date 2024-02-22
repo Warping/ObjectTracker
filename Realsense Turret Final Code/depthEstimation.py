@@ -15,7 +15,6 @@ def estimate(pixel_h, depth_c):
     k_final.append(k_avg)
     if len(k_final) > 100:
         k_final.pop(0)
-
     return 
 
 

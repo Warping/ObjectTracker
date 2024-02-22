@@ -42,7 +42,7 @@ class DepthCamera:
         depth_sensor.set_option(rs.option.exposure, exposure)
 
         # Change depth step to 1mm
-        depth_sensor.set_option(rs.option.depth_units, 0.01)
+        depth_sensor.set_option(rs.option.depth_units, 0.001)
 
         # Start streaming
         self.pipeline.start(config)
