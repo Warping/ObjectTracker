@@ -2,11 +2,11 @@ import cv2
 import numpy as np
 
 class TargetViewer:
-    def __init__(self):
+    def __init__(self, windowSize=(640, 480), xRange=(-4.0, 4.0), yRange=(0, 8.0)):
         self.targetPositions = []
-        self.windowSize = (848, 480)
-        self.yRange = (0, 8.0)
-        self.xRange = (-4.0, 4.0)
+        self.windowSize = windowSize
+        self.yRange = yRange
+        self.xRange = xRange
     
     def addPosition(self, position):
         self.targetPositions.append(position)

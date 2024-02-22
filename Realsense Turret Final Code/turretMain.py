@@ -4,9 +4,9 @@ from camera_view import *
 from simulation_view import *
 
 
-cap = DepthCamera((640, 480), (640, 480), 15, 15)
+cap = DepthCamera((1280, 720), (1280, 720), 30, 30)
 detector = PersonDetector(cap, 'cuda')
-simulator = TargetViewer()
+simulator = TargetViewer((640, 480))
 
 while True:
     camera_frame, positions = detector.detect()
