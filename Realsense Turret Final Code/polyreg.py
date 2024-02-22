@@ -7,10 +7,40 @@ class Point:
     """
     Point a super simple struct that just contains a position at time t
     """
-    def __init__(self, x=None, y=None, t=None):
-        self.x = x
-        self.y = y
-        self.t = t
+    def __init__(self, position):
+        """
+        Pass in a dictionary to reference points on each dimension,
+        ex. Point({'x':1, 'y':0, 'z':5})
+        Point.coordinates['x'] -> 1
+        OR pass in a list or tuple to reference the points as a1,a2,a3...
+        ex. Point( (1, 0, 5) )
+        Point.coordinates['a1'] -> 1
+
+        """
+
+        self.coordinates = {}
+        if type(position) == tuple or type(position) == list:
+            n = 0
+            for p in position:
+                self.coordinates['a'+str(n)] = p
+                n += 1
+        elif type(position) == dict():
+            for label,value in position.items():
+                self.coordinates[label] = value
+
+
+        #self.x = x
+        #self.y = y
+        #self.t = t
+"""
+        self.all_x = []
+        self.all_y = []
+        self.all_t = []
+        for p_i in self.p_set:
+            self.all_x.append(p_i.x)
+            self.all_y.append(p_i.y)
+            self.all_t.append(p_i.t)
+"""
 
 class Points:
     """
@@ -21,20 +51,52 @@ class Points:
         self.p_set = p_set
         self.len = len(p_set)
 
-        self.all_x = []
-        self.all_y = []
-        self.all_t = []
-        for p_i in self.p_set:
-            self.all_x.append(p_i.x)
-            self.all_y.append(p_i.y)
-            self.all_t.append(p_i.t)
+        self.labels = []
+        for p in self.p_set:
+            self.labels = p.coordinates.keys()
 
-    def add_point(self, p):
-        self.p_set.append(p)
+        
+
+
+    
+    def all_line(label:str) -> list:
+        """
+        Gets all the points in the line label.
+        ex. all_line('x') gives a list of all the points on the x line
+        """
+
+        if label not in self.labels:
+            return False
+        line = []
+        for p in self.p_set:
+            line.append(p.coordinates[p])
+        return line
+
+
+    def add_point(self, pt):
+        self.p_set.append(pt)
         self.len = len(p_set)
-        self.all_x.append(p.x)
-        self.all_y.append(p.y)
-        self.all_t.append(p.t)
+        for label in pt.coordinates.keys():
+            if label not in self.labels:
+                self.labels.append(label)
+
+    def pop(self):
+        pop_point = self.p_set.pop()
+        return pop_point
+    
+    def rm_point(self, pt):
+        if type(pt) != Point and (type(pt) == list or type(pt) == tuple):
+           pt1 = Point(pt) 
+        else:
+            pt1 = pt
+
+
+        for p,i in enumerate(self.p_set, range(self.len)):
+            if p == pt1:
+                del self.p_set[i]
+                return True
+        
+        return False
 
 
     
