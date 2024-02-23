@@ -1,7 +1,13 @@
-# AutoTurret
-A simple turret with the ability to predict the path of a ground based target
+# Object Tracker
+A tracker with the ability to predict the path of a ground based target
 
-# Algorithm
+# Projection Algorithm
+The algorithm for the de-projection of the 2d image involves grabbing a depth map 
+of the current camera frame and AI to find the object we want the depth of. The
+algorithm then takes the depth value and pixel positions to calculate the 3d point in
+space. We can then track this point over time for path prediction
+
+# Prediction Algorithm
 The algorithm used takes into account the positions of a target and calculates 
 the speeds and accelerations for each point and uses those to determine if the 
 taregt is on a parabolic path. If the target is on a parabolic path, the agorithm 
@@ -12,18 +18,11 @@ that the angle of the turret is close any future angles calculated by the algori
 later on.
 
 # Adjustable Parameters
-Target and Projectile Speed
-
-Target Acceleration
-
-Target and Turret Position
-
-Number of turrets
+Number of MAX tracked object
+Number of points to graph
+Resolution of depth tracking
 
 # Features to Add
-
-Multiple Target selection
-
-Adjustable effective firing radius
-
+Multiple object path prediction
 Ability to account for variation in target position and velocity changes at large distances
+Implement weighted polyfit for path prediction
