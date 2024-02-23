@@ -4,14 +4,14 @@ import numpy as np
 exposure = 31000
 
 class DepthCamera:
-    def __init__(self, colorRes, depthRes, colorFPS, depthFPS):
+    def __init__(self, colorRes, colorFPS, depthFPS):
         # Configure depth and color streams
         self.colorRes = colorRes
-        self.depthRes = depthRes
+        self.depthRes = colorRes
         colorX = colorRes[0]
         colorY = colorRes[1]
-        depthX = depthRes[0]
-        depthY = depthRes[1]
+        depthX = colorRes[0]
+        depthY = colorRes[1]
         self.pipeline = rs.pipeline()
         config = rs.config()
 

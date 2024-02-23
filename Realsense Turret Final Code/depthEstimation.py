@@ -17,11 +17,11 @@ def estimate(pixel_h, depth_c):
         k_final.pop(0)
     return 
 
-
+# Gets the real depth of the target from list of pixel heights and depth values
 def get_real_depth(pixel_h, depth_c, resolution=0.1):
     if np.std(depth_c) < resolution:
         estimate(pixel_h, depth_c)
-        return np.mean(depth_c)
+        return depth_c[-1]
     elif len(k_final) != 0:
         depths = []
         global k_final
