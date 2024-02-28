@@ -1,11 +1,11 @@
 from polyreg import Point, Points
 
 class Target:
-    self.pos = None
-    self.uid = None
-    self.max_pos = None
 
     def __init__(self, uid, pos=None, max_pos=None):
+        self.pos = None
+        self.uid = None
+        self.max_pos = None
         if pos != None and type(pos) == Points:
             self.pos = pos
         elif pos == type(Point):
@@ -29,9 +29,9 @@ class Target:
 
 
 class Targets:
-    self.targets = {}
     
     def __init__(self, tar_list):
+        self.targets = {}
         for t in tar_list:
             self.targets[t.uid] = t
 
