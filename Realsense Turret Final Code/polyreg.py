@@ -106,6 +106,11 @@ class Points:
 
     
 
+"""
+This needs to be updated and is now unusuable with the new 
+changes to Point and Points.
+"""
+
 
 class PolyReg:
     """
