@@ -7,6 +7,12 @@ MAX_K_SIZE = 100
 k_final = []
 
 def estimate(pixel_h, depth_c):
+    """
+    Estimates a new value for k_final and appends it
+    to the current k_final list. Will maintain MAX_K_SIZE
+    and remove the oldest value in k_final if the size of k_final
+    is MAX_K_SIZE.
+    """
     global k_final
     k = []
     for h, d in enumerate(pixel_h, depth_c):
@@ -19,6 +25,11 @@ def estimate(pixel_h, depth_c):
 
 
 def get_real_depth(pixel_h, depth_c, resolution=0.1):
+    """
+    This gets the depth of an object with an error within the value
+    of resolution. Using the values in k_final, it calculates the depth
+    of an object and returns a number for distance.
+    """
     global k_final
     if np.std(depth_c) < resolution:
         estimate(pixel_h, depth_c)
