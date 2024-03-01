@@ -83,10 +83,6 @@ class PersonDetector:
                 chestCenters.append(chestCenter)
                 sensorDepths.append(self.getDepth(chestBound, self.depth_frame))
                 sensorHeights.append(self.getChestHeight(chestPoints))
-            else:
-                chestCenters.append(None)
-                sensorDepths.append(None)
-                sensorHeights.append(None)
         return sensorDepths, sensorHeights, chestCenters
     
     def getDHCFrame(self, d, h, c, frame):

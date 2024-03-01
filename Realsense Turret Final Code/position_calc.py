@@ -5,7 +5,7 @@ class PositionCalc:
         self.pixel_heights = []
         self.depth_points = []
         self.final_depth = None
-        MAX_POS_SIZE = max_pos_size
+        self.MAX_POS_SIZE = max_pos_size
     
     def add_depth_point(self, pixel_h, depth_c):
         self.pixel_heights.append(pixel_h)
@@ -32,11 +32,12 @@ class MultiTargetDepthEstimator:
         self.MAX_POS_SIZE = max_pos_size
     
     def add_depth_point(self, pixel_h, depth_c, target_num):
-        if len(self.position_calcs) < target_num:
+        if len(self.position_calcs) < target_num + 1:
             self.position_calcs.append(PositionCalc(self.MAX_POS_SIZE))
         self.position_calcs[target_num].add_depth_point(pixel_h, depth_c)
 
     def add_depth_points(self, pixel_hs, depth_cs):
+        print(len(pixel_hs), len(depth_cs))
         for i, (pixel_h, depth_c) in enumerate(zip(pixel_hs, depth_cs)):
             self.add_depth_point(pixel_h, depth_c, i)
     

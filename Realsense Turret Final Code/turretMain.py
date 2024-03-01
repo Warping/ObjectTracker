@@ -3,13 +3,15 @@ from realsense_depth import *
 from camera_view import *
 from simulation_view import *
 import position_calc as pc
+import depthai_depth as dd
 
 CAP_RES = (1280, 720)
 SIM_RES = (640, 480)
 
 
-cap = DepthCamera(CAP_RES, 30, 30)
-detector = PersonDetector(cap, 'cuda')
+# cap = DepthCamera(CAP_RES, 30, 30)
+cap = dd.OakDepthCam(CAP_RES, 30, 30)
+detector = PersonDetector(cap, 'cpu')
 simulator = TargetViewer((640, 480))
 mtde = pc.MultiTargetDepthEstimator(5)
 
@@ -25,6 +27,8 @@ while True:
     new_depths = []
     if (len(mtde.position_calcs) != len(depths)):
         mtde.clear_all_targets()
+    print("depths: ", depths)
+    print("heights: ", heights)
     mtde.add_depth_points(heights, depths)
     real_depths = mtde.get_real_depths()
     for depth, real_depth in zip(depths, real_depths):
