@@ -6,6 +6,7 @@ depth_points = []
 MAX_K_SIZE = 100
 k_final = []
 
+
 # Constants for the camera. We're using an OAK-D Lite(s) for the project
 #
 # The FOV is in degrees converted to radians - works better with numpy
@@ -47,7 +48,7 @@ def get_real_depth(pixel_h, depth_c, resolution=0.1):
     global k_final
     if np.std(depth_c) < resolution:
         estimate(pixel_h, depth_c)
-        return np.mean(depth_c)
+        return depth_c[-1]
     elif len(k_final) != 0:
         depths = []
         k = np.mean(k_final)
@@ -60,9 +61,6 @@ def get_real_depth(pixel_h, depth_c, resolution=0.1):
     else:
         return None
 
-
 def stereo_depth(x_1, x_2):
     D = (CAMERA_DISTANCE * CAMERA_WIDTH)/(2 * np.tan(CAMERA_HFOV / 2) * (x_1 - x_2))
     return D
-
-
