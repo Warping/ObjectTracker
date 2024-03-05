@@ -29,7 +29,7 @@ class Point:
         """
         if type(other) != Point:
             raise TypeError("Invalid type. Both objects must be of Point.")
-        if self._dimension != other.dim():
+        if self._dimension != other._dimension:
             raise Exception(f"Incorrect dimensions.")
         if self._coordinates.keys() != other._coordinates.keys():
             raise Exception(f"Differing dimension labels.")
@@ -95,16 +95,20 @@ class Points:
     Points will store a set of the Point object and acts 
     like a container to simplify accessing and storing many Points
     """
-    def __init__(self, p_set):
-        try:
-            self.__p_set = list(p_set)
-            self.__len = len(p_set)
-        except TypeError:
-            print("Incorrect type for p_set in __init__(self, p_set)")
-
+    def __init__(self, p_set=None):
+        if p_set != None:
+            try:
+                self.__p_set = list(p_set)
+                self.__len = len(p_set)
+            except TypeError:
+                print("Incorrect type for p_set in __init__(self, p_set)")
+        else:
+            self.__p_set = list()
         self.__labels = []
         for p in self.__p_set:
-            self.__labels = p._coordinates.keys()
+            for key in p._coordinates.keys():
+                if key not in self.__labels:
+                    self.__labels.append(key)
 
     def __getitem__(self, index) -> Point:
        """
@@ -115,7 +119,7 @@ class Points:
         """
        if type(index) == int:
            try:
-               return __p_set[index]
+               return self.__p_set[index]
            except IndexError:
                raise IndexError(f'Not subscriptable to index \'{index}\' - Out of range')
 
@@ -124,7 +128,7 @@ class Points:
                raise IndexError(f'No key \'{index}\' exists to subscript a numerical line')
            _line = []
            for pt in self.__p_set:
-               _line.append(pt._coordinates[label])
+               _line.append(pt._coordinates[index])
            return _line
 
        else:
