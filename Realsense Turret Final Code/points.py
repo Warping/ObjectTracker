@@ -8,6 +8,13 @@ from dataclasses import dataclass, field
 class Point:
     _coordinates: None
     _dimension: int = field(init=False) # This is the amount of dimensions in the Point
+    
+    # TODO: When having two points/vectors being tracked in space over time, usually time is disregarded
+    # or calculated seperately per basis. p1 + p2 shouldn't be adding their time values and should just give
+    # a vector in space without a time value.
+    #
+    #_ignore_variables: list = field(default_factory=list) # variables to ignore when doing calculations
+    #For example, time t shouldn't be calculated when getting the dot prodcut of two points
 
     def __post_init__(self):
         pos = self._coordinates
@@ -179,14 +186,19 @@ class Points:
         self.len = len(self.__p_set)
         return pop_point
 
+    # TODO: Implement __delitem__, insert, remove
+
     def rm_point(self, pt):
         if type(pt) != Point and (type(pt) == list or type(pt) == tuple):
             pt1 = Point(pt) 
         elif type(pt) == Point:
-            pt1 = pt
+            #pt1 = pt
+            pass
+        else:
+            raise TypeError("Incorrect
 
 
-        for idx,p in enumerate(self.p_set):
+        for idx,p in enumerate(self.__p_set):
             if p == pt1:
                 del self.p_set[idx]
                 self.len = len(self.p_set)
