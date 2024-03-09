@@ -7,6 +7,7 @@ from dataclasses import dataclass, field
 @dataclass(frozen=True)
 class Point:
     _coordinates: None
+    _time: int = 0
     _dimension: int = field(init=False) # This is the amount of dimensions in the Point
     
     # TODO: When having two points/vectors being tracked in space over time, usually time is disregarded
@@ -188,14 +189,24 @@ class Points:
 
     # TODO: Implement __delitem__, insert, remove
 
+
+    def __delitem__(self, item):
+        pass
+
+    def insert(self, item):
+        pass
+
+    def remove(self, index):
+        pass
+
     def rm_point(self, pt):
         if type(pt) != Point and (type(pt) == list or type(pt) == tuple):
             pt1 = Point(pt) 
         elif type(pt) == Point:
             #pt1 = pt
             pass
-        else:
-            raise TypeError("Incorrect
+        #else:
+        #    raise TypeError("Incorrect
 
 
         for idx,p in enumerate(self.__p_set):
