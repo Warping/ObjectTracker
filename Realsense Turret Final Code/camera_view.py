@@ -3,8 +3,8 @@ import numpy as np
 from ultralytics import YOLO
 import torch
 
-import pyrealsense2 as rs
-from realsense_depth import *
+#import pyrealsense2 as rs
+#from realsense_depth import *
 from time import time
 
 # RESX = 1920
@@ -25,7 +25,7 @@ import depthEstimation as de
 
 
 class PersonDetector:
-    def __init__(self, cap, device='cuda'):
+    def __init__(self, cap, device='cpu'):
         global model
         model = YOLO('yolov8x-pose.pt')
         model.to(device)

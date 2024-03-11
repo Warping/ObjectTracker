@@ -113,7 +113,10 @@ class Points:
         else:
             self.__p_set = list()
         self.__labels = []
+        self._time = []
         for p in self.__p_set:
+            if p._time not in self._time:
+                self._time.append(p._time)
             for key in p._coordinates.keys():
                 if key not in self.__labels:
                     self.__labels.append(key)
@@ -186,7 +189,11 @@ class Points:
             pop_point = self.__p_set.pop(i)
         self.len = len(self.__p_set)
         return pop_point
+    
+    def keys(self):
+        return self.__labels
 
+    
     # TODO: Implement __delitem__, insert, remove
 
 
