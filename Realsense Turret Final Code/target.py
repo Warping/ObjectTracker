@@ -1,50 +1,74 @@
-from polyreg import Point, Points
+from points import Point, Points
+from dataclasses import dataclass, field
 
+@dataclass
 class Target:
+    _positions: Points
+    _uid: int
 
-    def __init__(self, uid, pos=None, max_pos=None):
-        self.pos = None
-        self.uid = None
-        self.max_pos = None
-        if pos != None and type(pos) == Points:
-            self.pos = pos
-        elif pos == type(Point):
-            self.pos = Points([Point])
-        else:
-            self.pos = Points([])
+    def append(self, pos:Point):
+        self._positions.append(pos)
 
-        self.max_pos = max_pos
-        self.uid = uid
+    def pop(self, index=None) -> Point:
+        return self._positions.pop(index)
 
-    def pop(self, index=0):
-        #removes and returns the first position pos[0] unless index is specified
+    def __len__(self) -> int:
+        return len(self._positions)
 
-        if len(self.pos) != 0:
-            return self.pos.pop()
-        else:
-            return None
+    def __contains__(self, item:Point) -> bool:
+        return item in self._positions
 
-    def append(self, position):
-        self.pos.append(position)
+    def __getitem__(self, index) -> Point:
+        return self._positions[index]
+    
+    # And to implement the rest later
 
+    def __delitem__(self, item):
+        pass
+
+
+def mk_targ_list(targs:list) -> dict:
+    tl = dict()
+    for t in targs:
+        tl[t._uid] = t
+    return tl
 
 class Targets:
+    #_targs: dict = field(default_factory=dict)
+
+    def __init__(self, targs):
+        self._targs = targs
+
+    def keys(self):
+        return self._targs.keys()
     
-    def __init__(self, tar_list):
-        self.targets = {}
-        for t in tar_list:
-            self.targets[t.uid] = t
+    def values(self):
+        return self._targs.values()
 
-
-    def add(self, tar):
-        if tar.uid not in self.targets.keys():
-            self.targets_l[tar.uid] = tar
+    def items(self):
+        return self._targs.items()
     
-    def remove(self, uid):
-        if tar.uid in self.targets.keys():
-            del self.targets[uid]
+    def __getitem__(self, uid) -> Target:
+        if uid in self._targs.keys():
+            return self._targs[uid]
+        else:
+            raise KeyError(f'UID {uid} does not exist in _targs')
+
+    def __delitem__(self, uid):
+        if uid in self._targs.keys():
+            del self._targs[uid]
+        else:
+            raise KeyError(f'UID {uid} does not exist in _targs')
+
+    def __setitem__(self, uid, targ:Target):
+        if uid != targ._uid:
+            raise Exception()
+        self._targs[uid] = targ
+
+    def __iter__(self):
+        return iter(self._targs)
 
 
+    
 
-        
 
