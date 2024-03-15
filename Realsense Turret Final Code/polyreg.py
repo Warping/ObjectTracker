@@ -66,6 +66,16 @@ def regress(pts:Points, degree=2):
     return {'mk1': model_k1, 'mk2': model_k2, 'k1':k1, 'k2':k2, 'len': len(time), 'time': time}
 
 def estimate(model):
+    """
+    The regression model retrned from regress contains the two models for
+    the first two axis lines supplied in Points.
+
+    The model for point estimation is presented as such:
+    E = (2 * xfinal_2 - xfinal_1, 2 * yfinal_2 - yfinal_1)
+    where E is a point (or vector) in space and xfinal, yfinal
+    are the end points from the regression models with
+    their respective model numbers
+    """
     next_time = model['time'][-1] + 1
 
 

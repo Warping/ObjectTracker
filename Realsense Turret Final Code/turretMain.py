@@ -12,13 +12,15 @@ conf = CONFIG.config
 
 #CAP_RES = (1280, 720)
 CAP_RES = (conf['Camera']['width'], conf['Camera']['height'])
-SIM_RES = (640, 480)
+CAP_RGB_FR = conf['Camera']['rgb_framerate']
+CAP_STE_FR = conf['Camera']['stereo_framerate']
+SIM_RES = (conf['Simulation']['width'], conf['Simulation']['height'])
 
 
 if __name__ == '__main__':
     # cap = DepthCamera(CAP_RES, 30, 30)
-    cap = dd.OakDepthCam(CAP_RES, 30, 30)
-    detector = PersonDetector(cap, conf['YOLO']['Architecture'])
+    cap = dd.OakDepthCam(CAP_RES, colorFps=CAP_RGB_FR, stereoFps=CAP_STE_FR)
+    detector = PersonDetector(cap, device=conf['YOLO']['Architecture'])
     simulator = TargetViewer(SIM_RES)
     mtde = pc.MultiTargetDepthEstimator(5)
     while True:
