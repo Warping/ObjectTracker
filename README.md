@@ -21,8 +21,16 @@ later on.
 Number of MAX tracked object
 Number of points to graph
 Resolution of depth tracking
+Precision of Inference Model
+
+# Human Tracking Specifics
+Uses YOLOv8-pose to perform high quality tracking in a 2D image (Eliminates false positives)
+Creates bounding box from pose points to create region for lidar scanning to calibrate depth
+Calibration allows system to use height of person to track their depth when lidar error is high
 
 # Features to Add
 Multiple object path prediction
+Ability to distinguish objects from one another using an ID system.
 Ability to account for variation in target position and velocity changes at large distances
 Implement weighted polyfit for path prediction
+Implement stereo image disparity based depth tracking as opposed to using apparent height
