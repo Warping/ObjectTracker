@@ -27,16 +27,35 @@ class Target:
             raise ValueError("When supplying initial positions and timestamps, they must have equal lengths")
         if len(self._timestamps) == 0 and len(self._positions) == 0:
             self._pos_initialized = False
+            self._ukf_initialized = False
         else:
             self._pos_initialized = True
 
-        self.points = MerweScaledSigmaPoints(n=6, alpha=1., beta=2., kappa=0)
-        self._ukf = UKF(dim_x=6, dim_z=3, fx=fx, hx=hx, points=self.points, dt=0)
-        self._ukf.x = np.zeros(6)
-        self._ukf.P *= 10
-        self._ukf.R *= .1
-        self._ukf.Q = np.eye(6) * 0.1
 
+    def init_ukf(self, dt):
+        """
+        After the first append, dt is 0 because it's the only position, p1, and nothing is done.
+        After the second append, p2, init_ukf is called and the initial position to be used
+        will be the p1, and its velocity from p1 to p2. 
+        So the UKF will have an x_0 = p1 + v. Then do UKF.predict(), then UKF.update(p2)
+        """
+        p1 = self._positions[0]
+        p2 = self._positions[1]
+        x0, y0, z0 = p1
+        x1, y1, z1 = p2 # Redundant but it's more clear - non issue
+        velocity = np.array([(x1-x0)/dt, (y1-y0)/dt, (z1-z0)/dt])
+        x = np.concatenate((p1, velocity), axis=None)
+
+        self.points = MerweScaledSigmaPoints(n=6, alpha=.1, beta=2., kappa=0)
+        self._ukf = UKF(dim_x=6, dim_z=3, fx=fx, hx=hx, points=self.points, dt=dt)
+        #self._ukf.x = np.array([0.,0.,0.,0.,0.,0.])
+        self._ukf.x = x
+        self._ukf.P *= .2
+        self._ukf.R *= np.diag([.1**2, .1**2, .1**2])
+        self._ukf.Q = np.eye(6) * .1
+
+        self.add_measurement(p2, dt)
+        self._ukf_initialized = True
 
     # This should ONLY be called by append, add_pos, OR if for some reason
     # you're manually changing _positions and _timestamps and need to call this after
@@ -87,10 +106,13 @@ class Target:
                     measurement = np.append(pos, velocity)
                     self.add_measurement(measurement, dt)
                     """
-                    self.add_measurement(pos,dt)
+                    if self._ukf_initialized == False:
+                        self.init_ukf(dt)
+                    else:
+                        self.add_measurement(pos,dt)
                 else:
-                    initial_arr = np.append(np.array(pos), [0,0,0]) # current position (x, y, z) + initial velocity 0 (0, 0, 0)
-                    self._ukf.x = initial_arr 
+                    #initial_arr = np.append(np.array(pos), [0,0,0]) # current position (x, y, z) + initial velocity 0 (0, 0, 0)
+                    #self._ukf.x = initial_arr 
                     self._pos_initialized = True
 
             else:
