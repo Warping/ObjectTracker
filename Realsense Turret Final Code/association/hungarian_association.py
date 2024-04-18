@@ -6,7 +6,18 @@ from scipy.spatial import distance
 def get_cost_matrix(targets, old_positions, detections):
     if len(targets) != len(old_positions):
         raise ValueError(f'The amount of targets must be equal to the amount of old positions')
-    cost_matrix = np.zeros((len(targets), len(detections)))
+
+    # The cost matrix needs to be a squre matrix, so if there are more workers
+    # than jobs or vice versa, add dummy rows/cols
+    h = 0
+    w = 0
+    if len(targets) < len(detections):
+        h = len(detections)
+        w = h
+    else:
+        h = len(targets)
+        w = h
+    cost_matrix = np.zeros((h,w))
     for i, target in enumerate(targets):
         for j, detection in enumerate(detections):
             targ_pos = old_positions[i]
