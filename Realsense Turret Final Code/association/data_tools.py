@@ -32,7 +32,6 @@ def load_datafile(path):
     Loads a numpy file from `path` and returns it as an array or -1 
     if the file does not exist.
     """
-    Loads positional data
     if os.path.exists(path):
         dataset = np.load(path)
         return dataset

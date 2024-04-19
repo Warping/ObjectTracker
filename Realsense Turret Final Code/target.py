@@ -1,4 +1,3 @@
-from points import Point, Points
 from dataclasses import dataclass, field
 import numpy as np
 import uuid
@@ -136,7 +135,7 @@ class Target:
     def __contains__(self, item:np.ndarray) -> bool:
         return item in self._positions
 
-    def __getitem__(self, index) -> Point:
+    def __getitem__(self, index):
         if not isinstance(index, (int)):
             raise ValueError("Index must be of type int")
         if index < 0 or index >= len(self._positions):

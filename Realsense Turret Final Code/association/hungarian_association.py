@@ -3,6 +3,25 @@ from scipy.optimize import linear_sum_assignment
 from scipy.spatial import distance
 #from target import Target
 
+class AssociateKeyDict:
+    def __init__(self):
+        self._dict = {}
+    def __setitem__(self, key, value):
+        if not isinstance(key, (np.ndarray,list,tuple)) or not isinstance(value, (np.ndarray,list,tuple)):
+            print(key,value)
+            raise ValueError(f'Key or value not of type numpy.ndarray, list, or tuple. type(key) = {type(key)}, type(value) = {type(value)}')
+        self._dict[tuple(key)] = value
+    def __getitem__(self, key):
+        return self._dict[tuple(key)]
+    def keys(self):
+        ret = []
+        for key in self._dict.keys():
+            ret.append(np.array(key))
+        return ret
+    def values(self):
+        return [self._dict[key] for key in self._dict]
+
+
 def get_cost_matrix(targets, old_positions, detections):
     if len(targets) != len(old_positions):
         raise ValueError(f'The amount of targets must be equal to the amount of old positions')
@@ -34,13 +53,19 @@ def associate_detections(targets, detections, cost_matrix, return_type='list'):
                 associations.append((targets[r],detections[c]))
 
 
-         
-
     if return_type == 'dict':
+        akd = AssociateKeyDict()
+        for n in associations:
+            name = n[0]
+            match = n[1]
+            akd[name] = match
+        return akd
+    if return_type == '_dict':
         assoc_dict = {}
         names = [n[0] for n in associations]
         match = [n[1] for n in associations]
         for n,m in zip(names,match):
+            print(type(n))
             assoc_dict[n] = m
         return assoc_dict
     else:
