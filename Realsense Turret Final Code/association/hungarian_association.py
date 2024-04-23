@@ -8,7 +8,7 @@ class AssociateKeyDict:
         self._dict = {}
     def __setitem__(self, key, value):
         if not isinstance(key, (np.ndarray,list,tuple)) or not isinstance(value, (np.ndarray,list,tuple)):
-            print(key,value)
+            #print(key,value)
             raise ValueError(f'Key or value not of type numpy.ndarray, list, or tuple. type(key) = {type(key)}, type(value) = {type(value)}')
         self._dict[tuple(key)] = value
     def __getitem__(self, key):
@@ -36,7 +36,7 @@ def get_cost_matrix(targets, old_positions, detections):
             cost_matrix[i,j] = np.linalg.norm(targ_pos - detection)
     return cost_matrix
 
-def associate_detections(targets, detections, cost_matrix, return_type='list'):
+def associate_detections(targets, detections, cost_matrix, return_type='list', max_vel=None, max_dist=None, dt=None):
     row, col = linear_sum_assignment(cost_matrix)
 
     num_targets = len(targets)
@@ -55,30 +55,37 @@ def associate_detections(targets, detections, cost_matrix, return_type='list'):
 
     if return_type == 'dict':
         akd = AssociateKeyDict()
-        for n in associations:
-            name = n[0]
-            match = n[1]
-            akd[name] = match
+        for assoc in associations:
+            name = assoc[0]
+            match = assoc[1]
+            akd[(name,)] = match
         return akd
-    if return_type == '_dict':
+    if return_type == '_dict': # trash. Remove later
         assoc_dict = {}
         names = [n[0] for n in associations]
         match = [n[1] for n in associations]
         for n,m in zip(names,match):
-            print(type(n))
+            #print(type(n))
             assoc_dict[n] = m
         return assoc_dict
     else:
         return associations
 
             
-def associate(targets, old_positions, detections, return_type='list'):
+def associate(targets, old_positions, detections, return_type='list', max_vel=None, max_dist=None, dt=None):
     """
     A wrapper for doing a full Hungarian Algorithm call. `targets` can be anything
     but likely will be the objects that are being referenced and old_positions is likely
     going to be said targets' _ukf.x. If doing association merely on positions
+
+    max_vel is the threshold for the maximum velocity between two positions. If exceeded,
+    it will not be considered a match.
+    max_dist is similar to max vel but uses euclidean distance instead of velocity.
     """
+    if max_vel != None and dt == None:
+        raise ValueError("max_vel needs a dt in order to calculate velocity")
     cost_matrix = get_cost_matrix(targets, old_positions, detections)
-    associations = associate_detections(targets, detections, cost_matrix, return_type=return_type)
+    associations = associate_detections(targets, detections, cost_matrix, return_type=return_type,
+                                        max_vel=max_vel, max_dist=max_dist, dt=dt)
     return associations
 
