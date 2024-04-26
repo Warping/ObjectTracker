@@ -8,7 +8,6 @@ import data_tools as dtools
 import uuid
 
 
-#gpts = {'t0':np.array([]),'t':np.array([])}
 cur_frame = np.array([[]])
 frame_dt = None
 
@@ -39,7 +38,6 @@ class PotentialTarget:
 
 
 def add_frame(frame, dt=frame_dt):
-    #global gpts
     global cur_frame
     global frame_dt
     global potential_targets
@@ -61,7 +59,7 @@ def add_frame(frame, dt=frame_dt):
         cur_frame = np.array(frame)
 
     
-def associate_frames(max_dist=None, max_realative_vel=None):
+def associate_frames(max_dist=None, max_vel=None):
     global potential_targets
     
     cf_not_empty = (cur_frame.size != 0)
@@ -71,6 +69,7 @@ def associate_frames(max_dist=None, max_realative_vel=None):
         # use the target's most recent position for associating
         pt_positions = [pt.pos[-1] for pt in potential_targets]
         associations = HA.associate(potential_targets, pt_positions, cur_frame, return_type='dict', max_dist=max_dist)
+        ## maybe max_dist here is pointless if we check it here in this function
 
     
     # For all the points that could potentially be targets, if they are associated
@@ -82,11 +81,21 @@ def associate_frames(max_dist=None, max_realative_vel=None):
     new_targs = []
     pt_to_remove = [] # the potential set to be removed this frame tracked by their uuid
     unassociated_points = cur_frame
+
+    
+
     
     # add positions to potential targets and if necessary, convert potential targets into real targets
     for pt in potential_targets:
         pt_tup = (pt,)
-        if contained(pt_tup, associations.keys()) and pt_dist(pt.pos[-1],associations[pt_tup]) < max_dist:
+        if max_vel != None and isinstance(max_vel, (int,float)):
+            threshold_check = pt_last_velocity(pt, frame_dt)
+            if type(threshold_check) == type(None):
+                threshold_check = pt_next_velocity(pt, dt=frame_dt, pos=associations[pt_tup])
+            threshold_check = np.all(threshold_check < max_vel)
+        elif max_dist != None and isinstance(max_dist, (int,float)):
+            threshold_check = pt_dist(pt.pos[-1],associations[pt_tup]) < max_dist
+        if contained(pt_tup, associations.keys()) and threshold_check == True:
             pt.add_pos(associations[pt_tup])
             if pt.is_target:
                 new_target = get_new_target(points=pt.pos)
@@ -113,23 +122,19 @@ def associate_frames(max_dist=None, max_realative_vel=None):
     # create new potential targets with positions that have no match whatsoever - a new point
     for pos in unassociated_points:
         potential_targets.append(PotentialTarget(pos))
-    # since it had an association, check if it was within the max_dist value and
-    # if it exceeds it, then create one new target
-
-
 
     return new_targs
 
+def pt_next_velocity(pt, dt, pos):
+    if len(pt.pos) < 1:
+        return None
+    dx = abs(pt.pos[-1] - pos)
+    vel = dx/dt
+    return vel
 
-
-    potential_targets = []
-    for pt in gpts['t']:
-        if contained(pt, associations.values()):
-            potential_targets.append(PotentialTarget(pt))
-    return new_targs
 
 def pt_last_velocity(pt, dt):
-    if pt.pos.size <= 1:
+    if len(pt.pos) <= 1:
         return None
     dx = pt.pos[-1] - pt.pos[-2]
     vel = dx/dt
