@@ -19,7 +19,7 @@ class Target:
     _uid: str = field(default_factory=lambda: str(uuid.uuid4()))
     _class: str = field(default_factory=lambda: str('Unknown'))
     _ukf: UKF = field(init=False)
-    _future_prediction: np.ndarray = field(default_factory=lambda: np.empty((0,3)))
+    _future_prediction: np.ndarray = field(default_factory=lambda: np.empty((0,3))) # why haven't I used this? I don't know
 
     def __post_init__(self):
         if len(self._timestamps) != len(self._positions):
