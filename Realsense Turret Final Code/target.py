@@ -128,6 +128,12 @@ class Target:
         time_pop = self._timestamps(index)
         self._positions = np.delete(self._positions, index, axis=0)
         self._timestamps = np.delete(self._timestamps, index)
+
+    def __eq__(self, other):
+        return isinstance(other, Target) and self._uid == other._uid
+
+    def __hash__(self):
+        return hash(self._uid)
             
     def __len__(self) -> int:
         return len(self._positions)

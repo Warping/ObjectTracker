@@ -3,26 +3,11 @@ from scipy.optimize import linear_sum_assignment
 from scipy.spatial import distance
 #from target import Target
 
-class AssociateKeyDict:
-    def __init__(self):
-        self._dict = {}
-    def __setitem__(self, key, value):
-        if not isinstance(key, (np.ndarray,list,tuple)) or not isinstance(value, (np.ndarray,list,tuple)):
-            #print(key,value)
-            raise ValueError(f'Key or value not of type numpy.ndarray, list, or tuple. type(key) = {type(key)}, type(value) = {type(value)}')
-        self._dict[tuple(key)] = value
-    def __getitem__(self, key):
-        return self._dict[tuple(key)]
-    def keys(self):
-        ret = []
-        for key in self._dict.keys():
-            ret.append(np.array(key))
-        return ret
-    def values(self):
-        return [self._dict[key] for key in self._dict]
+def compute_velocity(target_pos, detection, dt):
+    dx = np.abs(target_pos - detection)
+    return np.linalg.norm(dx) / dt
 
-
-def get_cost_matrix(targets, old_positions, detections):
+def get_cost_matrix(targets, old_positions, detections, cost_type='dist', dt=None):
     if len(targets) != len(old_positions):
         raise ValueError(f'The amount of targets must be equal to the amount of old positions')
 
@@ -33,7 +18,10 @@ def get_cost_matrix(targets, old_positions, detections):
     for i, target in enumerate(targets):
         for j, detection in enumerate(detections):
             targ_pos = old_positions[i]
-            cost_matrix[i,j] = np.linalg.norm(targ_pos - detection)
+            if cost_type == 'velocity':
+                cost_matrix[i,j] = compute_velocity(targ_pos, detection, dt)
+            elif cost_type == 'dist':
+                cost_matrix[i,j] = np.linalg.norm(targ_pos - detection)
     return cost_matrix
 
 def associate_detections(targets, detections, cost_matrix, return_type='list', max_vel=None, max_dist=None, dt=None):
@@ -54,25 +42,17 @@ def associate_detections(targets, detections, cost_matrix, return_type='list', m
 
 
     if return_type == 'dict':
-        akd = AssociateKeyDict()
+        akd = {}
         for assoc in associations:
-            name = assoc[0]
+            tg = assoc[0]
             match = assoc[1]
-            akd[(name,)] = match
+            akd[tg] = match
         return akd
-    if return_type == '_dict': # trash. Remove later
-        assoc_dict = {}
-        names = [n[0] for n in associations]
-        match = [n[1] for n in associations]
-        for n,m in zip(names,match):
-            #print(type(n))
-            assoc_dict[n] = m
-        return assoc_dict
     else:
         return associations
 
             
-def associate(targets, old_positions, detections, return_type='list', max_vel=None, max_dist=None, dt=None):
+def associate(targets, old_positions, detections, return_type='list', cost_type='dist', max_dist=None, max_vel=None, dt=None):
     """
     A wrapper for doing a full Hungarian Algorithm call. `targets` can be anything
     but likely will be the objects that are being referenced and old_positions is likely
@@ -82,10 +62,11 @@ def associate(targets, old_positions, detections, return_type='list', max_vel=No
     it will not be considered a match.
     max_dist is similar to max vel but uses euclidean distance instead of velocity.
     """
-    if max_vel != None and dt == None:
-        raise ValueError("max_vel needs a dt in order to calculate velocity")
-    cost_matrix = get_cost_matrix(targets, old_positions, detections)
+    if cost_type == 'velocity':
+        if not isinstance(dt, (int,float)):
+            raise ValueError
+    cost_matrix = get_cost_matrix(targets, old_positions, detections, cost_type=cost_type, dt=dt)
     associations = associate_detections(targets, detections, cost_matrix, return_type=return_type,
-                                        max_vel=max_vel, max_dist=max_dist, dt=dt)
+                                        dt=dt)
     return associations
 

@@ -28,6 +28,12 @@ class PotentialTarget:
         self.missed_frames += 1
         if self.missed_frames >= self.max_missed:
             self.invalid_target = True
+    
+    def __eq__(self, other):
+        return isinstance(other, PotentialTarget) and self.uid == other.uid
+    
+    def __hash__(self):
+        return hash(self.uid)
 
 
 class FrameHandler:
@@ -35,6 +41,7 @@ class FrameHandler:
         self.cur_frame = np.array([[]])
         self.frame_dt = None
         self.potential_targets = []
+        self.real_targets = []
 
     def add_frame(self, frame, dt=None):
         if not isinstance(frame, (list, tuple, np.ndarray)):
@@ -49,21 +56,22 @@ class FrameHandler:
             self.frame_dt = dt
             self.cur_frame = np.array(frame)
 
-    def associate_frames(self, max_dist=None, max_vel=None):
+    def associate_potential_targets(self, assoc_type='dist', max_dist=None, max_vel=None):
         if self.cur_frame.size == 0 or len(self.potential_targets) == 0:
             return []
         
         pt_positions = [pt.pos[-1] for pt in self.potential_targets]
-        associations = HA.associate(self.potential_targets, pt_positions, self.cur_frame, return_type='dict', max_dist=max_dist)
+        associations = HA.associate(self.potential_targets, pt_positions, 
+                                    self.cur_frame, return_type='dict', max_dist=max_dist, max_vel=max_vel)
         new_targets = []
         pt_to_remove = []
         unassociated_points = self.cur_frame.copy()
 
+        # time to update this based off of the new hash implementation
         for pt in self.potential_targets:
-            pt_tuple = (pt,)
-            associated_pos = associations[pt_tuple]
+            associated_pos = associations[pt]
             if associated_pos is not None:
-                if self._is_within_limits(pt, associated_pos, max_dist, max_vel):
+                if self._is_within_limits_pt(pt, associated_pos, max_dist, max_vel):
                     pt.add_pos(associated_pos)
                     if pt.is_target:
                         new_targets.append(self._convert_to_target(pt))
@@ -76,23 +84,70 @@ class FrameHandler:
                         pt_to_remove.append(pt.uid)
         
         # Cleanup invalid or converted targets
-        self.potential_targets = [pt for pt in self.potential_targets if pt.uid not in pt_to_remove]
+        #self.potential_targets = [pt for pt in self.potential_targets if pt.uid not in pt_to_remove]
+        new_potential_targets = []
+        for pt in self.potential_targets:
+            if pt.uid not in pt_to_remove:
+                new_potential_targets.append(pt)
+        self.potential_targets = new_potential_targets
+
         # Create new potential targets for unassociated points
         for pos in unassociated_points:
             self.potential_targets.append(PotentialTarget(pos))
 
+        for new_target in new_targets:
+            self.real_targets.append(new_target)
+
         return new_targets
 
-    def _is_within_limits(self, pt, pos, max_dist, max_vel):
+    def associate_real_targets(self, assoc_type='dist', max_dist=None, max_vel=None):
+        if len(self.real_targets) == 0:
+            return
+        rt_positions = [rt._ukf.x[:3] for rt in self.real_targets]
+        associations = HA.associate(self.real_targets, rt_positions, self.cur_frame, return_type='dict',
+                                    max_dist=max_dist, max_vel=max_vel)
+        rt_to_remove = []
+        for rt in self.real_targets:
+            associated_pos = associations[rt]
+            if associated_pos is not None:
+                if self._is_within_limits_rt(rt, associated_pos, assoc_type=assoc_type, max_dist=max_dist, max_vel=max_vel):
+                    rt.add_pos(associated_pos)
+            else:
+                rt.no_match()
+                if rt.invalid_target:
+                    rt_to_remove.append(rt._uid)
+
+        # remove targets that have too many missed frames
+        new_real_targets = []
+        for rt in self.real_targets:
+            if rt._uid not in rt_to_remove:
+                new_real_targets.append(rt)
+        self.real_targets = new_real_targets
+
+
+
+
+    def _is_within_limits_pt(self, pt, pos, assoc_type='dist', max_dist=None, max_vel=None):
         if max_vel is not None:
             velocity = self._compute_velocity(pt.pos[-1], pos, self.frame_dt)
             if velocity >= max_vel:
                 return False
         if max_dist is not None:
             distance = np.linalg.norm(pt.pos[-1] - pos)
-            if distance > max_dist:
+            if distance >= max_dist:
                 return False
         return True
+    
+    def _is_within_limits_rt(self, rt, pos, assoc_type='dist', max_dist=None, max_vel=None):
+        if max_vel is not None:
+            velocity = self._compute_velocity(rt._ukf.x[:3], pos, self.frame_dt)
+            if velocity >= max_vel:
+                return False
+        if max_dist is not None:
+            distance = np.linalg.norm(pt._ukf.x[-1] - pos)
+            if distance >= max_dist:
+                return False
+        return None
 
     def _compute_velocity(self, prev_pos, new_pos, dt):
         dx = np.abs(prev_pos - new_pos)
