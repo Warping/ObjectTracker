@@ -35,6 +35,11 @@ class PotentialTarget:
     def __hash__(self):
         return hash(self.uid)
 
+"""
+You need to associate your real targets before generating/associating your potential targets.
+The algorithm needs to cull the points which are associated with real targets, then it needs
+to generate new potential targets from all of the unassociated points.
+"""
 
 class FrameHandler:
     def __init__(self):
@@ -45,19 +50,19 @@ class FrameHandler:
 
     def add_frame(self, frame, dt=None):
         if not isinstance(frame, (list, tuple, np.ndarray)):
-            raise ValueError("Frame must be a list, tuple, or ndarray.")
+            raise ValueError(f"Frame must be a list, tuple, or ndarray; recieved type {type(frame)}.")
         
         if len(self.potential_targets) == 0 and self.cur_frame.size == 0:
             for point in frame:
                 self.potential_targets.append(PotentialTarget(point))
         else:
             if dt is not None and not isinstance(dt, (int, float)):
-                raise ValueError(f"dt must be a valid number (float or int), received type(dt) = {type(dt)}")
+                raise ValueError(f"dt must be a valid number (float or int); received type(dt) = {type(dt)}")
             self.frame_dt = dt
             self.cur_frame = np.array(frame)
 
     def associate_potential_targets(self, assoc_type='dist', max_dist=None, max_vel=None):
-        if self.cur_frame.size == 0 or len(self.potential_targets) == 0:
+        if self.cur_frame.size == 0: 
             return []
         
         pt_positions = [pt.pos[-1] for pt in self.potential_targets]
@@ -67,7 +72,6 @@ class FrameHandler:
         pt_to_remove = []
         unassociated_points = self.cur_frame.copy()
 
-        # time to update this based off of the new hash implementation
         for pt in self.potential_targets:
             associated_pos = associations[pt]
             if associated_pos is not None:
@@ -92,8 +96,20 @@ class FrameHandler:
         self.potential_targets = new_potential_targets
 
         # Create new potential targets for unassociated points
+        #print(unassociated_points)
         for pos in unassociated_points:
-            self.potential_targets.append(PotentialTarget(pos))
+            if len(self.real_targets) == 0:
+                self.potential_targets.append(PotentialTarget(pos))
+                continue
+            has_assoc = False
+            for rt in self.real_targets:
+                #print(f'Checking for {pos} == {rt._positions[-1]}')
+                #print((rt._positions[-1] == pos).all())
+                if (rt._positions[-1] == pos).all():
+                    has_assoc = True
+                    break
+            if has_assoc == False:
+                self.potential_targets.append(PotentialTarget(pos))
 
         for new_target in new_targets:
             self.real_targets.append(new_target)
@@ -106,16 +122,19 @@ class FrameHandler:
         rt_positions = [rt._ukf.x[:3] for rt in self.real_targets]
         associations = HA.associate(self.real_targets, rt_positions, self.cur_frame, return_type='dict',
                                     max_dist=max_dist, max_vel=max_vel)
+
+        unassociated_points = []
         rt_to_remove = []
         for rt in self.real_targets:
             associated_pos = associations[rt]
             if associated_pos is not None:
+                print(f'Comparing distance with {rt._ukf.x[:3]} and {associated_pos}')
                 if self._is_within_limits_rt(rt, associated_pos, assoc_type=assoc_type, max_dist=max_dist, max_vel=max_vel):
-                    rt.add_pos(associated_pos)
-            else:
-                rt.no_match()
-                if rt.invalid_target:
-                    rt_to_remove.append(rt._uid)
+                    rt.add_pos(associated_pos, self.frame_dt)
+                else:
+                    rt.no_match()
+                    if rt.invalid_target:
+                        rt_to_remove.append(rt._uid)
 
         # remove targets that have too many missed frames
         new_real_targets = []
@@ -144,10 +163,10 @@ class FrameHandler:
             if velocity >= max_vel:
                 return False
         if max_dist is not None:
-            distance = np.linalg.norm(pt._ukf.x[-1] - pos)
+            distance = np.linalg.norm(rt._ukf.x[:3] - pos)
             if distance >= max_dist:
                 return False
-        return None
+        return True
 
     def _compute_velocity(self, prev_pos, new_pos, dt):
         dx = np.abs(prev_pos - new_pos)

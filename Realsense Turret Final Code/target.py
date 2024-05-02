@@ -20,6 +20,8 @@ class Target:
     _class: str = field(default_factory=lambda: str('Unknown'))
     _ukf: UKF = field(init=False)
     _future_prediction: np.ndarray = field(default_factory=lambda: np.empty((0,3))) # why haven't I used this? I don't know
+    _n_missed_frames: int = field(default=0)
+    _max_missed_frames: int = field(default=3)
 
     def __post_init__(self):
         if len(self._timestamps) != len(self._positions):
@@ -29,6 +31,7 @@ class Target:
             self._ukf_initialized = False
         else:
             self._pos_initialized = True
+        self.invalid_target = False
 
 
     def init_ukf(self, dt):
@@ -82,6 +85,11 @@ class Target:
 
     def add_pos(self, pos, dt):
         self.append(pos, dt)
+
+    def no_match(self):
+        self._n_missed_frames += 1
+        if self._n_missed_frames >= self._max_missed_frames:
+            self.invalid_target = True
 
 
     def append(self, pos, dt):
