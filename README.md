@@ -19,13 +19,18 @@ later on.
 
 # Adjustable Parameters
 Number of MAX tracked object
+
 Number of points to graph
+
 Resolution of depth tracking
+
 Precision of Inference Model
 
 # Human Tracking Specifics
 Uses YOLOv8-pose to perform high quality tracking in a 2D image (Eliminates false positives)
+
 Creates bounding box from pose points to create region for lidar scanning to calibrate depth
+
 Calibration allows system to use height of person to track their depth when lidar error is high
 
 # Features to Add
