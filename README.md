@@ -30,7 +30,11 @@ Calibration allows system to use height of person to track their depth when lida
 
 # Features to Add
 Multiple object path prediction (Implemented)
+
 Ability to distinguish objects from one another using an ID system. (Implemented)
+
 Ability to account for variation in target position and velocity changes at large distances (Implemented)
+
 Implement weighted polyfit for path prediction
+
 Implement stereo image disparity based depth tracking as opposed to using apparent height
