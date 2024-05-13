@@ -1,6 +1,17 @@
 # Object Tracker
 A tracker with the ability to predict the path of a ground based target
 
+# Note
+This public branch does not contain the specific implementation of our finalized algorithm and 
+ONLY contains the publicly available pieces needed for a full implementation. A short video of the
+prototype in action can be viewed here:
+
+https://youtube.com/shorts/yPidxpDLN4A?si=5Ecqifw0415ue5ss
+
+https://youtu.be/BcbsO29NmmU?si=AnJfAcd7cHpyQWCG
+
+https://youtu.be/3YItegcZnLA?si=GTx35yHF8zh_ZAJA
+
 # Projection Algorithm
 The algorithm for the de-projection of the 2d image involves grabbing a depth map 
 of the current camera frame and AI to find the object we want the depth of. The
