@@ -1,5 +1,6 @@
 opencv-contrib-python==4.9.0.80
 ultralytics==8.1.10
 pyrealsense2==2.54.2.5684
-Sphinx==7.6.2
+#Sphinx==7.6.2
 depthai==2.24.0.0
+filterpy==1.4.5
